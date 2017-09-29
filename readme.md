@@ -1,19 +1,24 @@
 README
 ======
 
-Bash script to update the ip of an account on no-ip.com
+Bash script to update the ip of an account on no-ip.com.
+
+This script is just a modification of no-ip.com bash-updater provided by
+AntionCS, to be found at 'https://github.com/AntonioCS/no-ip.com-bash-updater'
+with the purpose of making it aware of multiple hostsites.
 
 How to use
 ----------
 
-* Configure the script with the correct username, password, hostname, cache file (current IP), and log file
+* At the minimum you have to configure the script with the correct username, password and hostnames
+* Optionally you can also configure the name and location of the cache(current IP) and log file
 * Make it executable (`chmod +x`)
 * Run it (`./noipupdater.sh`)
 
 Tips!
 -----
 
-Place this in your cron file:
+Place this in your cron file (for example using `crontab -e` with superuser privileges):
 
     */15 * * * * /dir/where/file/is/noipupdater.sh
 

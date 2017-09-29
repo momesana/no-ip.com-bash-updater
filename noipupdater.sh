@@ -1,30 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# No-IP uses emails as usernames, so make sure that you encode the @ as %40
+# No-IP can use emails as usernames; in that case make sure that you encode the @ as %40
 USERNAME=username
 PASSWORD=password
-HOST=hostsite
-LOGFILE=logdir/noip.log
-STOREDIPFILE=configdir/current_ip
-USERAGENT="Simple Bash No-IP Updater/0.4 antoniocs@gmail.com"
+HOSTS=(hostsite1 hostsite2 hostsite3) # List of your hosts i.e. HOSTS=(xyz.redirectme.net yzx.redirectme.net zyx.redirectme.net)
 
-if [ ! -e $STOREDIPFILE ]; then
-	touch $STOREDIPFILE
-fi
-
+USERAGENT="Simple Bash No-IP Updater"
+LOGFILE=noip.log
 NEWIP=$(wget -O - http://icanhazip.com/ -o /dev/null)
+
+
+STOREDIPFILE=storedip
+if [ ! -e $STOREDIPFILE ]; then
+    touch $STOREDIPFILE
+fi
 STOREDIP=$(cat $STOREDIPFILE)
 
-if [ "$NEWIP" != "$STOREDIP" ]; then
-	RESULT=$(wget -O "$LOGFILE" -q --user-agent="$USERAGENT" --no-check-certificate "https://$USERNAME:$PASSWORD@dynupdate.no-ip.com/nic/update?hostname=$HOST&myip=$NEWIP")
+for HOST in ${HOSTS[@]}; do
+    if [ "$NEWIP" != "$STOREDIP" ]; then
+        RESULT=$(wget -O- -q --user-agent="$USERAGENT" --no-check-certificate "https://$USERNAME:$PASSWORD@dynupdate.no-ip.com/nic/update?hostname=$HOST&myip=$NEWIP")
 
-	LOGLINE="[$(date +"%Y-%m-%d %H:%M:%S")] $RESULT"
-	echo $NEWIP > $STOREDIPFILE
-else
-	LOGLINE="[$(date +"%Y-%m-%d %H:%M:%S")] No IP change"
-fi
+        LOGLINE="[$(date +"%Y-%m-%d %H:%M:%S")] $HOST: $RESULT"
+        echo $NEWIP > $STOREDIPFILE
+    else
+        LOGLINE="[$(date +"%Y-%m-%d %H:%M:%S")] $HOST: No IP change"
+    fi
 
-echo $LOGLINE >> $LOGFILE
+    echo $LOGLINE >> $LOGFILE
+done
 
 exit 0
+
 
